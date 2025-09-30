@@ -1,0 +1,45 @@
+/* Home page styles */
+.home-container {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 24px;
+  border-radius: 12px;
+  /* gradient with light pink and light blue */
+  background: linear-gradient(135deg, #fbe8f9 0%, #d0f0fd 100%);
+}
+
+.home-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 12px;
+  /* slightly transparent background for floating effect */
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+}
+
+.image-card {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.image-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.image-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}

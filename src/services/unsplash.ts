@@ -8,7 +8,7 @@ export async function getPhotos(page = 1, perPage = 20) {
     );
   }
 
-  const url = `${BASE_URL}/photos?page=${page}&per_page=${perPage}&client_id=${ACCESS_KEY}`;
+  const url = `${BASE_URL}/photos?page=${page}&per_page=${perPage}&order_by=latest&client_id=${ACCESS_KEY}`;
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -17,3 +17,11 @@ export async function getPhotos(page = 1, perPage = 20) {
 
   return res.json();
 }
+
+export type UnsplashPhoto = {
+  id: string;
+  urls: { small: string; full: string };
+  alt_description: string | null;
+  user: { name: string };
+  likes: number;
+};
