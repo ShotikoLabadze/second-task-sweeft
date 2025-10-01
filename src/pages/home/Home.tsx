@@ -3,15 +3,20 @@ import {
   getPhotos,
   getPhotoStats,
   UnsplashPhoto,
+  searchPhotos,
 } from "../../services/unsplash";
 import Card from "../../components/card/Card";
 import "./Home.css";
 import PhotoModal from "../../components/photoModal/PhotoModal";
+import SearchBar from "../../components/searchBar/SearchBar";
 
 export default function Home() {
   const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  //search
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Modal states
   const [selectedPhoto, setSelectedPhoto] = useState<UnsplashPhoto | null>(
@@ -56,6 +61,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading]);
 
+  //fetch when page changes
   useEffect(() => {
     if (page === 1) return;
     fetchPhotos(page);
@@ -79,10 +85,13 @@ export default function Home() {
     }
   };
 
+  //fetch when search changes
+
   return (
     <div className="home-container">
-      <h1 className="home-title">Unsplash Photos</h1>
-
+      {/* search bar */}
+      <SearchBar value={searchTerm} onChange={setSearchTerm} />
+      {/* photos */}
       <div className="image-grid">
         {photos.map((p) => (
           <Card
@@ -96,9 +105,7 @@ export default function Home() {
           />
         ))}
       </div>
-
       {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
-
       {modalOpen && selectedPhoto && (
         <PhotoModal
           photo={selectedPhoto}

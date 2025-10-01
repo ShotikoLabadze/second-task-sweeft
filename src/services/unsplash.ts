@@ -9,7 +9,7 @@ export async function getPhotos(page = 1, perPage = 20) {
     );
   }
 
-  const url = `${BASE_URL}/photos?page=${page}&per_page=${perPage}&order_by=latest&client_id=${ACCESS_KEY}`;
+  const url = `${BASE_URL}/photos?page=${page}&per_page=${perPage}&order_by=popular&client_id=${ACCESS_KEY}`;
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -44,4 +44,23 @@ export async function getPhotoStats(photoId: string) {
   }
 
   return res.json();
+}
+
+//search photos
+
+export async function searchPhotos(query: string, page = 1, perPage = 20) {
+  if (!ACCESS_KEY)
+    throw new Error(
+      "Unsplash Access Key is missing! Did you set REACT_APP_UNSPLASH_ACCESS_KEY in .env?"
+    );
+
+  const url = `${BASE_URL}/search/photos?query=${query}&page=${page}&per_page=${perPage}&client_id=${ACCESS_KEY}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Error ${res.status}: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  return data.results;
 }
