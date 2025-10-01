@@ -1,10 +1,9 @@
-/* Home page styles */
+/* Home */
 .home-container {
   max-width: 1200px;
   margin: 24px auto;
   padding: 24px;
   border-radius: 12px;
-  /* gradient with light pink and light blue */
   background: linear-gradient(135deg, #fbe8f9 0%, #d0f0fd 100%);
 }
 
@@ -19,7 +18,6 @@
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
   padding: 12px;
-  /* slightly transparent background for floating effect */
   background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
 }

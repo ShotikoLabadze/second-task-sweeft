@@ -1,12 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { getPhotos, UnsplashPhoto } from "../../services/unsplash";
+import {
+  getPhotos,
+  getPhotoStats,
+  UnsplashPhoto,
+} from "../../services/unsplash";
 import Card from "../../components/card/Card";
 import "./Home.css";
+import PhotoModal from "../../components/photoModal/PhotoModal";
 
 export default function Home() {
   const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  // Modal states
+  const [selectedPhoto, setSelectedPhoto] = useState<UnsplashPhoto | null>(
+    null
+  );
+  const [photoStats, setPhotoStats] = useState<{
+    downloads: number;
+    views: number;
+    likes: number;
+  } | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const fetchPhotos = async (pageNumber: number) => {
     setLoading(true);
@@ -21,10 +37,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // fetch first 20 popular photos
     fetchPhotos(page);
   }, []);
 
+  //infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
@@ -45,9 +61,28 @@ export default function Home() {
     fetchPhotos(page);
   }, [page]);
 
+  // opening modal
+  const handlePhotoClick = async (photo: UnsplashPhoto) => {
+    setSelectedPhoto(photo);
+    setModalOpen(true);
+
+    try {
+      const stats = await getPhotoStats(photo.id);
+      setPhotoStats({
+        downloads: stats.downloads,
+        views: stats.views,
+        likes: stats.likes,
+      });
+    } catch (err) {
+      console.error(err);
+      setPhotoStats(null);
+    }
+  };
+
   return (
     <div className="home-container">
       <h1 className="home-title">Unsplash Photos</h1>
+
       <div className="image-grid">
         {photos.map((p) => (
           <Card
@@ -57,10 +92,20 @@ export default function Home() {
             alt={p.alt_description}
             author={p.user.name}
             likes={p.likes}
+            onClick={() => handlePhotoClick(p)}
           />
         ))}
       </div>
+
       {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
+
+      {modalOpen && selectedPhoto && (
+        <PhotoModal
+          photo={selectedPhoto}
+          stats={photoStats}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
