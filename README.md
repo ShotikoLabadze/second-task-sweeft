@@ -55,4 +55,10 @@ REACT_APP_UNSPLASH_ACCESS_KEY=your_access_key_here
 
 2. Navigate to the project folder:
 
-3. Install dependencies: npm start
+3. Install dependencies:
+
+### npm install
+
+4. Start project:
+
+### npm start
