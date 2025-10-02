@@ -1,0 +1,36 @@
+import React, { createContext, useContext, useState } from "react";
+import { UnsplashPhoto } from "../services/unsplash";
+
+interface SearchContextProps {
+  searchHistory: string[];
+  addSearchTerm: (term: string) => void;
+  cache: Record<string, UnsplashPhoto[]>;
+  updateCache: (term: string, photos: UnsplashPhoto[]) => void;
+}
+
+const SearchContext = createContext<SearchContextProps>(
+  {} as SearchContextProps
+);
+
+export const useSearch = () => useContext(SearchContext);
+
+export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [cache, setCache] = useState<Record<string, UnsplashPhoto[]>>({});
+
+  const addSearchTerm = (term: string) => {
+    setSearchHistory((prev) => (prev.includes(term) ? prev : [term, ...prev]));
+  };
+
+  const updateCache = (term: string, photos: UnsplashPhoto[]) => {
+    setCache((prev) => ({ ...prev, [term]: photos }));
+  };
+
+  return (
+    <SearchContext.Provider
+      value={{ searchHistory, addSearchTerm, cache, updateCache }}
+    >
+      {children}
+    </SearchContext.Provider>
+  );
+};

@@ -8,6 +8,7 @@ import {
 import Card from "../../components/card/Card";
 import PhotoModal from "../../components/photoModal/PhotoModal";
 import SearchBar from "../../components/searchBar/SearchBar";
+import { useSearch } from "../../context/SearchContext";
 import "./Home.css";
 
 export default function Home() {
@@ -27,15 +28,34 @@ export default function Home() {
   } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  // Context for caching and history
+  const { addSearchTerm, cache, updateCache } = useSearch();
+
   // Fetch photos (popular or search)
   const fetchPhotos = async (pageNumber: number) => {
     setLoading(true);
     try {
       let newPhotos: UnsplashPhoto[] = [];
+
       if (searchTerm.trim() === "") {
-        newPhotos = await getPhotos(pageNumber, 20, "popular"); // popular photos by default
+        if (cache["popular"] && pageNumber === 1) {
+          setPhotos(cache["popular"]);
+          setLoading(false);
+          return;
+        }
+        newPhotos = await getPhotos(pageNumber, 20);
+        if (pageNumber === 1) updateCache("popular", newPhotos);
       } else {
+        if (cache[searchTerm] && pageNumber === 1) {
+          setPhotos(cache[searchTerm]);
+          setLoading(false);
+          return;
+        }
         newPhotos = await searchPhotos(searchTerm, pageNumber, 20);
+        if (pageNumber === 1) {
+          updateCache(searchTerm, newPhotos);
+          addSearchTerm(searchTerm);
+        }
       }
 
       setPhotos((prev) =>
@@ -74,7 +94,7 @@ export default function Home() {
     fetchPhotos(page);
   }, [page]);
 
-  // Fetch when searchTerm changes (reset page)
+  // Fetch when searchTerm changes
   useEffect(() => {
     const delay = setTimeout(() => {
       setPage(1);
@@ -102,7 +122,10 @@ export default function Home() {
 
   return (
     <div className="home-container">
+      {/* Search bar */}
       <SearchBar value={searchTerm} onChange={setSearchTerm} />
+
+      {/* Photos Grid */}
       <div className="image-grid">
         {photos.map((p) => (
           <Card
@@ -116,7 +139,11 @@ export default function Home() {
           />
         ))}
       </div>
+
+      {/* loading indicator */}
       {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
+
+      {/* modal */}
       {modalOpen && selectedPhoto && (
         <PhotoModal
           photo={selectedPhoto}
