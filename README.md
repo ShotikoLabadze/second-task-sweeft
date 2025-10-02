@@ -48,3 +48,11 @@ A **photo gallery application** built with React that allows you to browse the 2
 ```env
 REACT_APP_UNSPLASH_ACCESS_KEY=your_access_key_here
 ```
+
+## Installation
+
+1. Clone the repository:
+
+2. Navigate to the project folder:
+
+3. Install dependencies: npm start
