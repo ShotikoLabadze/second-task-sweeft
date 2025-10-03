@@ -1,4 +1,4 @@
-export type UnsplashPhoto = {
+export type GalleryPhoto = {
   id: string;
   urls: { small: string; full: string };
   alt_description: string | null;
@@ -16,7 +16,7 @@ export async function getPhotos(
   page = 1,
   perPage = 20,
   order: "popular" | "latest" = "popular"
-): Promise<UnsplashPhoto[]> {
+): Promise<GalleryPhoto[]> {
   const res = await fetch(
     `${BASE_URL}/photos?page=${page}&per_page=${perPage}&order_by=${order}&client_id=${ACCESS_KEY}`
   );
@@ -30,7 +30,7 @@ export async function searchPhotos(
   query: string,
   page = 1,
   perPage = 20
-): Promise<UnsplashPhoto[]> {
+): Promise<GalleryPhoto[]> {
   const res = await fetch(
     `${BASE_URL}/search/photos?query=${query}&page=${page}&per_page=${perPage}&client_id=${ACCESS_KEY}`
   );

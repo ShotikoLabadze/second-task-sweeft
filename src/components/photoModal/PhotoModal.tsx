@@ -1,8 +1,8 @@
-import { UnsplashPhoto } from "../../services/unsplash";
+import { GalleryPhoto } from "../../services/api";
 import "./PhotoModal.css";
 
 type PhotoModalProps = {
-  photo: UnsplashPhoto;
+  photo: GalleryPhoto;
   stats: { downloads: number; views: number; likes: number } | null;
   onClose: () => void;
 };

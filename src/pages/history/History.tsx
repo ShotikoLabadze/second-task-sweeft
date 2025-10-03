@@ -2,16 +2,14 @@ import React, { useState } from "react";
 import { useSearch } from "../../context/SearchContext";
 import Card from "../../components/card/Card";
 import PhotoModal from "../../components/photoModal/PhotoModal";
-import { getPhotoStats, UnsplashPhoto } from "../../services/unsplash";
+import { getPhotoStats, GalleryPhoto } from "../../services/api";
 import "../history/History.css";
 
 export default function History() {
   const { searchHistory, cache } = useSearch();
 
-  const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
-  const [selectedPhoto, setSelectedPhoto] = useState<UnsplashPhoto | null>(
-    null
-  );
+  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
+  const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [photoStats, setPhotoStats] = useState<{
     downloads: number;
     views: number;
@@ -23,7 +21,7 @@ export default function History() {
     setPhotos(cache[term] || []);
   };
 
-  const handlePhotoClick = async (photo: UnsplashPhoto) => {
+  const handlePhotoClick = async (photo: GalleryPhoto) => {
     setSelectedPhoto(photo);
     setModalOpen(true);
 

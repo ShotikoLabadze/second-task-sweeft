@@ -3,8 +3,8 @@ import {
   getPhotos,
   getPhotoStats,
   searchPhotos,
-  UnsplashPhoto,
-} from "../../services/unsplash";
+  GalleryPhoto,
+} from "../../services/api";
 import Card from "../../components/card/Card";
 import PhotoModal from "../../components/photoModal/PhotoModal";
 import SearchBar from "../../components/searchBar/SearchBar";
@@ -12,15 +12,13 @@ import { useSearch } from "../../context/SearchContext";
 import "./Home.css";
 
 export default function Home() {
-  const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
+  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // modal states
-  const [selectedPhoto, setSelectedPhoto] = useState<UnsplashPhoto | null>(
-    null
-  );
+  const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [photoStats, setPhotoStats] = useState<{
     downloads: number;
     views: number;
@@ -35,7 +33,7 @@ export default function Home() {
   const fetchPhotos = async (pageNumber: number) => {
     setLoading(true);
     try {
-      let newPhotos: UnsplashPhoto[] = [];
+      let newPhotos: GalleryPhoto[] = [];
 
       if (searchTerm.trim() === "") {
         if (cache["popular"] && pageNumber === 1) {
@@ -104,7 +102,7 @@ export default function Home() {
   }, [searchTerm]);
 
   // Open modal
-  const handlePhotoClick = async (photo: UnsplashPhoto) => {
+  const handlePhotoClick = async (photo: GalleryPhoto) => {
     setSelectedPhoto(photo);
     setModalOpen(true);
     try {
@@ -127,9 +125,9 @@ export default function Home() {
 
       {/* Photos Grid */}
       <div className="image-grid">
-        {photos.map((p) => (
+        {photos.map((p, index) => (
           <Card
-            key={p.id}
+            key={`${p.id}-${index}`}
             id={p.id}
             imageUrl={p.urls.small}
             alt={p.alt_description}
