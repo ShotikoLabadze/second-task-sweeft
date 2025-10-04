@@ -1,4 +1,4 @@
-import { GalleryPhoto } from "../../services/api";
+import { GalleryPhoto } from "../../api/api";
 import "./PhotoModal.css";
 
 type PhotoModalProps = {

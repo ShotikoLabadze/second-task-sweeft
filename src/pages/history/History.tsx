@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useSearch } from "../../context/SearchContext";
 import Card from "../../components/card/Card";
 import PhotoModal from "../../components/photoModal/PhotoModal";
-import { getPhotoStats, GalleryPhoto } from "../../services/api";
+import { getPhotoStats, GalleryPhoto } from "../../api/api";
 import "../history/History.css";
 
 export default function History() {

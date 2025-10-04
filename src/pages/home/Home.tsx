@@ -4,7 +4,7 @@ import {
   getPhotoStats,
   searchPhotos,
   GalleryPhoto,
-} from "../../services/api";
+} from "../../api/api";
 import Card from "../../components/card/Card";
 import PhotoModal from "../../components/photoModal/PhotoModal";
 import SearchBar from "../../components/searchBar/SearchBar";

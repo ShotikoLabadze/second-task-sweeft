@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { GalleryPhoto } from "../services/api";
+import { GalleryPhoto } from "../api/api";
 
 interface SearchContextProps {
   searchHistory: string[];
