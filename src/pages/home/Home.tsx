@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   getPhotos,
-  getPhotoStats,
   searchPhotos,
+  getPhotoStats,
   GalleryPhoto,
 } from "../../api/api";
 import Card from "../../components/card/Card";
@@ -11,13 +11,16 @@ import SearchBar from "../../components/searchBar/SearchBar";
 import { useSearch } from "../../context/SearchContext";
 import "./Home.css";
 
+const PHOTOS_PER_PAGE = 20;
+
 export default function Home() {
+  const { addSearchTerm, cache, updateCache } = useSearch();
+
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // modal states
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [photoStats, setPhotoStats] = useState<{
     downloads: number;
@@ -26,34 +29,28 @@ export default function Home() {
   } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Context for caching and history
-  const { addSearchTerm, cache, updateCache } = useSearch();
+  const currentTermRef = useRef<string>("popular");
 
   // Fetch photos (popular or search)
-  const fetchPhotos = async (pageNumber: number) => {
+  const fetchPhotos = async (term: string, pageNumber: number) => {
+    if (loading) return;
     setLoading(true);
     try {
       let newPhotos: GalleryPhoto[] = [];
 
-      if (searchTerm.trim() === "") {
-        if (cache["popular"] && pageNumber === 1) {
-          setPhotos(cache["popular"]);
-          setLoading(false);
-          return;
-        }
-        newPhotos = await getPhotos(pageNumber, 20);
-        if (pageNumber === 1) updateCache("popular", newPhotos);
+      // Use cache if first page
+      if (cache[term] && pageNumber === 1) {
+        newPhotos = cache[term];
       } else {
-        if (cache[searchTerm] && pageNumber === 1) {
-          setPhotos(cache[searchTerm]);
-          setLoading(false);
-          return;
+        if (term === "popular") {
+          newPhotos = await getPhotos(pageNumber, PHOTOS_PER_PAGE);
+        } else {
+          newPhotos = await searchPhotos(term, pageNumber, PHOTOS_PER_PAGE);
         }
-        newPhotos = await searchPhotos(searchTerm, pageNumber, 20);
-        if (pageNumber === 1) {
-          updateCache(searchTerm, newPhotos);
-          addSearchTerm(searchTerm);
-        }
+
+        // Update cache
+        const prev = pageNumber === 1 ? [] : cache[term] || [];
+        updateCache(term, [...prev, ...newPhotos]);
       }
 
       setPhotos((prev) =>
@@ -66,9 +63,11 @@ export default function Home() {
     }
   };
 
-  // Load first page
+  // Initial load
   useEffect(() => {
-    fetchPhotos(1);
+    currentTermRef.current = "popular";
+    fetchPhotos("popular", 1);
+    setPage(1);
   }, []);
 
   // Infinite scroll
@@ -86,22 +85,26 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading]);
 
-  // Fetch when page changes
+  // Fetch next page
   useEffect(() => {
     if (page === 1) return;
-    fetchPhotos(page);
+    fetchPhotos(currentTermRef.current, page);
   }, [page]);
 
-  // Fetch when searchTerm changes
+  // Search term changes
   useEffect(() => {
     const delay = setTimeout(() => {
+      const term = searchTerm.trim() === "" ? "popular" : searchTerm;
+      currentTermRef.current = term;
       setPage(1);
-      fetchPhotos(1);
+      fetchPhotos(term, 1);
+
+      if (term !== "popular") addSearchTerm(term);
     }, 500);
+
     return () => clearTimeout(delay);
   }, [searchTerm]);
 
-  // Open modal
   const handlePhotoClick = async (photo: GalleryPhoto) => {
     setSelectedPhoto(photo);
     setModalOpen(true);
@@ -112,22 +115,19 @@ export default function Home() {
         views: stats.views,
         likes: stats.likes,
       });
-    } catch (err) {
-      console.error(err);
+    } catch {
       setPhotoStats(null);
     }
   };
 
   return (
     <div className="home-container">
-      {/* Search bar */}
       <SearchBar value={searchTerm} onChange={setSearchTerm} />
 
-      {/* Photos Grid */}
       <div className="image-grid">
-        {photos.map((p, index) => (
+        {photos.map((p, idx) => (
           <Card
-            key={`${p.id}-${index}`}
+            key={`${currentTermRef.current}-${p.id}-${idx}`}
             id={p.id}
             imageUrl={p.urls.small}
             alt={p.alt_description}
@@ -138,10 +138,8 @@ export default function Home() {
         ))}
       </div>
 
-      {/* loading indicator */}
       {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
 
-      {/* modal */}
       {modalOpen && selectedPhoto && (
         <PhotoModal
           photo={selectedPhoto}
